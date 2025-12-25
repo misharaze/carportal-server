@@ -1,6 +1,6 @@
 import sequelize from "../Config/Database.js";
 
-import UserModel from "./User.js";
+import UserModel from "./user.js";
 import ListingModel from "./Listings.js";
 import FavoriteModel from "./Favorite.js";
 import NotificationModel from "./Notification.js";
