@@ -24,10 +24,12 @@ app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
-);
+)
 app.use(cors({
   origin:[ "http://localhost:3000",
-   "http://localhost:3002"],
+   "http://localhost:3002",
+    "https://carportalclient.vercel.app"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
