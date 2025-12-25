@@ -25,15 +25,24 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 )
+
 app.use(cors({
-  origin:[ "http://localhost:3000",
-   "http://localhost:3002",
-    "https://carportalclient.vercel.app"
-  ],
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      origin.startsWith("http://localhost") ||
+      origin.endsWith(".vercel.app")
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 
 app.use(compression());
