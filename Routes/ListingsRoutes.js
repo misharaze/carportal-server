@@ -11,7 +11,7 @@ router.post("/", auth, uploa.single("image"), controller.createListing);
 // список с пагинацией и фильтрами
 router.get("/", controller.getListings);
 
-router.post("/admin", auth, adminOnly, upload.single("image"), controller.createByAdmin);
+router.post("/admin", auth, adminOnly, uploa.single("image"), controller.createByAdmin);
 
 // удаление (только админ)
 router.delete("/:id", auth, adminOnly, controller.deleteListing);
