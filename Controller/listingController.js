@@ -244,51 +244,100 @@ export async function adminUpdateStatus(req, res) {
 
 
 // 3) Редактирование объявления (частичное)
+
 export async function adminUpdateListing(req, res) {
   try {
     const { id } = req.params;
-    const data = req.body;  // brand, model, price и т.д.
+    const data = { ...req.body };
+
+    if (req.file) {
+      const base64 = req.file.buffer.toString("base64");
+      const dataURI = `data:${req.file.mimetype};base64,${base64}`;
+
+      const uploaded = await cloudinary.uploader.upload(dataURI, {
+        folder: "car-portal"
+      });
+
+      data.image = uploaded.secure_url;
+    }
 
     await Listing.update(data, { where: { id } });
-    const updated = await Listing.findByPk(id);
 
+    const updated = await Listing.findByPk(id);
     res.json(updated);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Ошибка редактирования объявления" });
   }
 }
+
+
 export async function createByAdmin(req, res) {
   try {
     const {
       brand,
       model,
+      year,
       price,
       mileage,
-      image,
-      userID,
-     } = req.body;
+      engineVolume,
+      power,
+      fuelType,
+      gearbox,
+      drive,
+      color,
+      condition,
+      description,
+      vin,
+      userId
+    } = req.body;
 
-     if (!brand || !model || !price) {
+    if (!brand || !model || !price) {
       return res.status(400).json({ error: "Заполните обязательные поля" });
     }
+
+    let imageUrl = null;
+
+    if (req.file) {
+      const base64 = req.file.buffer.toString("base64");
+      const dataURI = `data:${req.file.mimetype};base64,${base64}`;
+
+      const upload = await cloudinary.uploader.upload(dataURI, {
+        folder: "car-portal"
+      });
+
+      imageUrl = upload.secure_url;
+    }
+
     const listing = await Listing.create({
       brand,
       model,
+      year,
       price,
       mileage,
-      image,
-      userId: userID || req.user.id, // 👑 админ ИЛИ выбранный юзер
-      status: "approved", 
-      isActive: true,
+      engineVolume,
+      power,
+      fuelType,
+      gearbox,
+      drive,
+      color,
+      condition,
+      description,
+      vin,
+      image: imageUrl,
+
+      userId: userId || req.user.id,
+      status: "approved",
+      isActive: true
     });
 
     res.json(listing);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Ошибка создания админом" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Ошибка создания объявления" });
   }
 }
+
 export async function getOneListing(req, res) {
   try {
     const listing = await Listing.findByPk(req.params.id, {

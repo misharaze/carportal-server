@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { auth, adminOnly } from "../Middleware/authMiddleware.js";
-import multer from "multer";
-const upload = multer();
+import { upload } from "../Middleware/Uploa.js";
+
 import {
   adminGetListings,
   deleteListing,
@@ -22,24 +22,45 @@ import { getAdminStats } from "../Controller/StatsController.js";
 
 const router = Router();
 
-// 🔐 ТОЛЬКО АДМИН
+/* ===== защита ===== */
 router.use(auth, adminOnly);
 
 /* ===== LISTINGS ===== */
 router.get("/listings", adminGetListings);
-router.patch("/listings/:id/status", adminUpdateStatus);
-router.patch("/listings/:id", adminUpdateListing);
-router.post("/listings", createByAdmin);
-router.post("/listings/bulk", bulkCreateListings);
-router.delete("/listings/:id", deleteListing);
 
+router.post(
+  "/listings",
+  upload.single("image"),
+  createByAdmin
+);
+
+router.post(
+  "/listings/bulk",
+  bulkCreateListings
+);
+
+router.patch(
+  "/listings/:id",
+  upload.single("image"),
+  adminUpdateListing
+);
+
+router.patch(
+  "/listings/:id/status",
+  adminUpdateStatus
+);
+
+router.delete(
+  "/listings/:id",
+  deleteListing
+);
 
 /* ===== USERS ===== */
 router.get("/users", getUsers);
 router.patch("/users/:id/role", updateUserRole);
 router.patch("/users/:id/ban", toggleBan);
 router.delete("/users/:id", deleteUser);
-router.post("/listings", upload.single("image"), createByAdmin);
+
 /* ===== STATS ===== */
 router.get("/stats", getAdminStats);
 
