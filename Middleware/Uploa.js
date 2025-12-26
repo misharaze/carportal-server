@@ -1,12 +1,12 @@
 import multer from "multer";
 
-const storage = multer.memoryStorage();
+ storage = multer.memoryStorage();
 
-const uploa = multer({
+export const uploa = multer({
   storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB
   }
 });
 
-export default uploa;
+

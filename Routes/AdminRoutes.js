@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { auth, adminOnly } from "../Middleware/authMiddleware.js";
-import { upload } from "../Middleware/Uploa.js";
+import { uploa } from "../Middleware/Uploa.js";
 
 import {
   adminGetListings,
@@ -30,7 +30,7 @@ router.get("/listings", adminGetListings);
 
 router.post(
   "/listings",
-  upload.single("image"),
+  uploa.single("image"),
   createByAdmin
 );
 
@@ -41,7 +41,7 @@ router.post(
 
 router.patch(
   "/listings/:id",
-  upload.single("image"),
+  uploa.single("image"),
   adminUpdateListing
 );
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as controller from "../Controller/listingController.js";
 import { auth, adminOnly } from "../Middleware/authMiddleware.js";
-import { uploa } from "../Middleware/Uploa.js";
+import { uploa} from "../Middleware/Uploa.js";
 
 const router = Router();
 
