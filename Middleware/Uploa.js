@@ -1,6 +1,6 @@
 import multer from "multer";
 
- storage = multer.memoryStorage();
+ const storage = multer.memoryStorage();
 
 export const uploa = multer({
   storage,
