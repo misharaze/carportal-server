@@ -22,45 +22,24 @@ import { getAdminStats } from "../Controller/StatsController.js";
 
 const router = Router();
 
-/* ===== защита ===== */
+// 🔐 ТОЛЬКО АДМИН
 router.use(auth, adminOnly);
 
 /* ===== LISTINGS ===== */
 router.get("/listings", adminGetListings);
+router.patch("/listings/:id/status", adminUpdateStatus);
+router.patch("/listings/:id", adminUpdateListing);
+router.post("/listings", createByAdmin);
+router.post("/listings/bulk", bulkCreateListings);
+router.delete("/listings/:id", deleteListing);
 
-router.post(
-  "/listings",
-  uploa.single("image"),
-  createByAdmin
-);
-
-router.post(
-  "/listings/bulk",
-  bulkCreateListings
-);
-
-router.patch(
-  "/listings/:id",
-  uploa.single("image"),
-  adminUpdateListing
-);
-
-router.patch(
-  "/listings/:id/status",
-  adminUpdateStatus
-);
-
-router.delete(
-  "/listings/:id",
-  deleteListing
-);
 
 /* ===== USERS ===== */
 router.get("/users", getUsers);
 router.patch("/users/:id/role", updateUserRole);
 router.patch("/users/:id/ban", toggleBan);
 router.delete("/users/:id", deleteUser);
-
+router.post("/listings", uploa.single("image"), createByAdmin);
 /* ===== STATS ===== */
 router.get("/stats", getAdminStats);
 
