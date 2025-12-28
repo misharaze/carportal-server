@@ -1,6 +1,7 @@
+import { DataTypes } from "sequelize";
 
 
-export default (sequelize, DataTypes) => {
+export default (sequelize) => {
   const Settings = sequelize.define("Settings", {
     maintenance: {
       type: DataTypes.BOOLEAN,
