@@ -1,6 +1,7 @@
 import sequelize from "../Config/Database.js";
 
 import UserModel from "./user.js";
+import SettingsModel from "./Settings.js";
 import ListingModel from "./Listings.js";
 import FavoriteModel from "./Favorite.js";
 import NotificationModel from "./Notification.js";
@@ -11,7 +12,7 @@ const Listing = ListingModel(sequelize);
 const Favorite = FavoriteModel(sequelize);
 const Notification = NotificationModel(sequelize);
 const PasswordReset = PasswordResetModel(sequelize);
-
+const Settings = SettingsModel(sequelize);
 /* ===== ASSOCIATIONS ===== */
 
 // User → Listings

@@ -264,3 +264,10 @@ export async function verify2FA(req, res) {
 
   res.json({ token });
 }
+const settings = await Settings.findOne();
+
+if (!settings.allowRegistration) {
+  return res.status(403).json({
+    error: "Регистрация временно отключена администратором"
+  });
+}

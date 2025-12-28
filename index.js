@@ -16,7 +16,9 @@ import BrandRoutes from "./Routes/BrandRoutes.js";
 import notificationRoutes from "./Routes/NotificationRoutes.js";
 import searchRoutes from "./Routes/SearchRoutes.js";
 import userRoutes from  "./Routes/UserRoutes.js"
-
+import settingsRoutes from "./Routes/SettingsRoutes.js";
+import maintenanceMiddleware from "./Middleware/maintenanceMiddleware.js";
+import authMiddleware from "./Middleware/authMiddleware.js";
 
 const app = express();
 
@@ -50,6 +52,15 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(apiLimiter);
 
+
+
+app.use(authMiddleware);
+
+
+app.use(maintenanceMiddleware);
+
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/listings", listingRoutes);
@@ -59,7 +70,7 @@ app.use("/api/brands", BrandRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/uploads", express.static("uploads"));
-
+app.use("/api/admin/settings", settingsRoutes);
 
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
