@@ -19,7 +19,7 @@ import searchRoutes from "./Routes/SearchRoutes.js";
 import userRoutes from  "./Routes/UserRoutes.js"
 import settingsRoutes from "./Routes/SettingsRoutes.js";
 import maintenanceMiddleware from "./Middleware/maintenanceMiddleware.js";
-import authMiddleware from "./Middleware/authMiddleware.js";
+
 
 const app = express();
 
