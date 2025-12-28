@@ -4,30 +4,29 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
-import { auth } from "./Middleware/authMiddleware.js";
 
 import db from "./Models/index.js";
-import authRoutes from "./Routes/AuthRoutes.js";
-import listingRoutes from "./Routes/ListingsRoutes.js";
-import { apiLimiter } from "./Middleware/rateLimit.js";
-import adminRoutes from "./Routes/AdminRoutes.js"
-import vinRoutes from "./Routes/VinRoutes.js"
-import FavoriteRoutes from './Routes/FavoritesRoutes.js';
-import BrandRoutes from "./Routes/BrandRoutes.js";
-import notificationRoutes from "./Routes/NotificationRoutes.js";
-import searchRoutes from "./Routes/SearchRoutes.js";
-import userRoutes from  "./Routes/UserRoutes.js"
-import settingsRoutes from "./Routes/SettingsRoutes.js";
+import { auth } from "./Middleware/authMiddleware.js";
 import maintenanceMiddleware from "./Middleware/maintenanceMiddleware.js";
 
+import authRoutes from "./Routes/AuthRoutes.js";
+import userRoutes from "./Routes/UserRoutes.js";
+import listingRoutes from "./Routes/ListingsRoutes.js";
+import adminRoutes from "./Routes/AdminRoutes.js";
+import settingsRoutes from "./Routes/SettingsRoutes.js";
+import FavoriteRoutes from "./Routes/FavoritesRoutes.js";
+import BrandRoutes from "./Routes/BrandRoutes.js";
+import searchRoutes from "./Routes/SearchRoutes.js";
+import notificationRoutes from "./Routes/NotificationRoutes.js";
 
 const app = express();
+
 
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
-)
+);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -41,61 +40,53 @@ app.use(cors({
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  credentials: true
 }));
 
-
-
-app.use(compression());
 app.use(express.json());
+app.use(compression());
 app.use(morgan("dev"));
-app.use(apiLimiter);
 
+
+app.use("/api/auth", authRoutes);
+app.use("/api/brands", BrandRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/health", (_, res) => res.json({ status: "ok" }));
 
 
 app.use(auth);
-
 
 
 app.use(maintenanceMiddleware);
 
 
 
-app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/listings", listingRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/favorites", FavoriteRoutes);
-app.use("/api/brands", BrandRoutes);
-app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/uploads", express.static("uploads"));
+
+/* ADMIN */
+app.use("/api/admin", adminRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 
-app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-  next();
-});
+app.use("/uploads", express.static("uploads"));
 
-app.get("/health", (_, res) => res.json({ status: "ok" }));
+
 
 const PORT = process.env.PORT || 5001;
 
 const start = async () => {
   try {
     await db.sequelize.authenticate();
-    await db.sequelize.sync({alter:false});
-    console.log("✅ БД подключена");
+    await db.sequelize.sync({ alter: false });
 
-    
-    app.listen(PORT, () => console.log(`✅ Сервер запущен на порту ${PORT}`));
+    console.log("✅ БД подключена");
+    app.listen(PORT, () =>
+      console.log(`✅ Сервер запущен на порту ${PORT}`)
+    );
   } catch (e) {
     console.error("❌ Ошибка запуска:", e);
-  
   }
 };
 
