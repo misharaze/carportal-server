@@ -42,8 +42,8 @@ const db = {
   Listing,
   Favorite,
   Notification,
-  PasswordReset
- 
+  PasswordReset,
+Settings
 };
 
 export default db;
