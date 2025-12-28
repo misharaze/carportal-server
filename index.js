@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
+import { auth } from "./Middleware/authMiddleware.js";
 
 import db from "./Models/index.js";
 import authRoutes from "./Routes/AuthRoutes.js";
@@ -54,7 +55,8 @@ app.use(apiLimiter);
 
 
 
-app.use(authMiddleware);
+app.use(auth);
+
 
 
 app.use(maintenanceMiddleware);
