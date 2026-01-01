@@ -19,7 +19,7 @@ import FavoriteRoutes from "./Routes/FavoritesRoutes.js";
 import BrandRoutes from "./Routes/BrandRoutes.js";
 import searchRoutes from "./Routes/SearchRoutes.js";
 import notificationRoutes from "./Routes/NotificationRoutes.js";
-
+import messageRoutes from "./Routes/Messages.js";
 const app = express();
 
 /* ================= BASIC MIDDLEWARE ================= */
@@ -69,7 +69,7 @@ app.use(maintenanceMiddleware);
 app.use("/api/user", userRoutes);
 app.use("/api/favorites", FavoriteRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use("/api/messages", messageRoutes);
 /* ================= ADMIN ================= */
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/settings", settingsRoutes);
