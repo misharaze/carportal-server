@@ -3,6 +3,10 @@ import { DataTypes } from "sequelize";
 
 export default function ListingModel(sequelize) {
   const Listing = sequelize.define("Listing", {
+    userId: {
+  type: DataTypes.INTEGER,
+  allowNull: false
+},
     brand: { type: DataTypes.STRING, allowNull: false },
     model: { type: DataTypes.STRING, allowNull: false },
     year: { type: DataTypes.INTEGER, allowNull: false },
