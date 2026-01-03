@@ -175,3 +175,58 @@ export async function markAsRead(req, res) {
     res.status(500).json({ error: "Ошибка обновления" });
   }
 }
+
+export async function startConversation(req, res) {
+  try {
+    const { listingId, text } = req.body;
+    const senderId = req.user.id;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: "Сообщение пустое" });
+    }
+
+    const listing = await Listing.findByPk(listingId);
+    if (!listing) {
+      return res.status(404).json({ error: "Объявление не найдено" });
+    }
+
+    const ownerId = listing.userId;
+
+    if (ownerId === senderId) {
+      return res.status(400).json({ error: "Нельзя писать самому себе" });
+    }
+
+    // 🔍 ищем существующий диалог
+    let conversation = await Conversation.findOne({
+      where: {
+        listingId,
+        [Op.or]: [
+          { user1Id: senderId, user2Id: ownerId },
+          { user1Id: ownerId, user2Id: senderId }
+        ]
+      }
+    });
+
+    // ➕ если нет — создаём
+    if (!conversation) {
+      conversation = await Conversation.create({
+        listingId,
+        user1Id: senderId,
+        user2Id: ownerId,
+        lastMessage: text
+      });
+    }
+
+    await Message.create({
+      conversationId: conversation.id,
+      senderId,
+      text,
+      isRead: false
+    });
+
+    res.json({ conversationId: conversation.id });
+  } catch (err) {
+    console.error("startConversation error:", err);
+    res.status(500).json({ error: "Ошибка создания диалога" });
+  }
+}
