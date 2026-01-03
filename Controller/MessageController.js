@@ -8,48 +8,25 @@ const { Message, Conversation, User, Listing } = db;
 ============================ */
 export async function createMessage(req, res) {
   try {
-    const { listingId, text } = req.body;
+    const { conversationId, text } = req.body;
     const senderId = req.user.id;
 
     if (!text || !text.trim()) {
       return res.status(400).json({ error: "Сообщение пустое" });
     }
 
-    const listing = await Listing.findByPk(listingId);
-    if (!listing) {
-      return res.status(404).json({ error: "Объявление не найдено" });
-    }
+    const conversation = await Conversation.findByPk(conversationId);
 
-    const ownerId = listing.userId;
-
-    if (ownerId === senderId) {
-      return res.status(400).json({ error: "Нельзя писать самому себе" });
-    }
-
-    // 🔍 ищем существующий диалог (в обе стороны)
-    let conversation = await Conversation.findOne({
-      where: {
-        listingId,
-        [Op.or]: [
-          { userAId: senderId, userBId: ownerId },
-          { userAId: ownerId, userBId: senderId }
-        ]
-      }
-    });
-
-    // ➕ создаём новый диалог
     if (!conversation) {
-      conversation = await Conversation.create({
-        listingId,
-        userAId: senderId,
-        userBId: ownerId,
-        lastMessage: text
-      });
+      return res.status(404).json({ error: "Диалог не найден" });
     }
 
-    // ✉️ создаём сообщение
+    if (![conversation.userAId, conversation.userBId].includes(senderId)) {
+      return res.status(403).json({ error: "Нет доступа" });
+    }
+
     const message = await Message.create({
-      conversationId: conversation.id,
+      conversationId,
       senderId,
       text,
       isRead: false
@@ -57,16 +34,14 @@ export async function createMessage(req, res) {
 
     await conversation.update({ lastMessage: text });
 
-    res.json({
-      conversationId: conversation.id,
-      message
-    });
+    res.json(message);
 
   } catch (err) {
     console.error("createMessage error:", err);
     res.status(500).json({ error: "Ошибка отправки сообщения" });
   }
 }
+
 
 /* ============================
    СПИСОК ДИАЛОГОВ
