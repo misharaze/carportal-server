@@ -181,22 +181,14 @@ export async function startConversation(req, res) {
     const { listingId, text } = req.body;
     const senderId = req.user.id;
 
-    if (!text || !text.trim()) {
-      return res.status(400).json({ error: "Сообщение пустое" });
-    }
-
     const listing = await Listing.findByPk(listingId);
-    if (!listing) {
-      return res.status(404).json({ error: "Объявление не найдено" });
-    }
+    if (!listing) return res.status(404).json({ error: "Объявление не найдено" });
 
     const ownerId = listing.userId;
-
     if (ownerId === senderId) {
       return res.status(400).json({ error: "Нельзя писать самому себе" });
     }
 
-    // 🔍 ищем существующий диалог
     let conversation = await Conversation.findOne({
       where: {
         listingId,
@@ -207,7 +199,6 @@ export async function startConversation(req, res) {
       }
     });
 
-    // ➕ если нет — создаём
     if (!conversation) {
       conversation = await Conversation.create({
         listingId,
@@ -226,7 +217,7 @@ export async function startConversation(req, res) {
 
     res.json({ conversationId: conversation.id });
   } catch (err) {
-    console.error("startConversation error:", err);
+    console.error(err);
     res.status(500).json({ error: "Ошибка создания диалога" });
   }
 }

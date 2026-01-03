@@ -11,10 +11,11 @@ import {
 
 const router = Router();
 
+router.post("/start", auth, startConversation); // 👈 ВАЖНО: ВВЕРХУ
 router.post("/", auth, createMessage);
+
 router.get("/conversations", auth, getConversations);
 router.get("/:id", auth, getMessages);
 router.patch("/:id/read", auth, markAsRead);
-router.post("/messages/start", auth, startConversation);
 
 export default router;
