@@ -1,34 +1,20 @@
+// models/Conversation.js
 import { DataTypes } from "sequelize";
 
 export default function ConversationModel(sequelize) {
-  const Conversation = sequelize.define("Conversation", {
+  return sequelize.define("Conversation", {
     listingId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      field: "listingId"
+      allowNull: false
     },
-
-    // в коде будет conversation.userAId,
-    // но в БД это колонка user1Id
-    userAId: {
+    user1Id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      field: "user1Id"
+      allowNull: false
     },
-
-    // в коде будет conversation.userBId,
-    // но в БД это колонка user2Id
-    userBId: {
+    user2Id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      field: "user2Id"
+      allowNull: false
     },
-
-    lastMessage: {
-      type: DataTypes.TEXT,
-      field: "lastMessage"
-    }
+    lastMessage: DataTypes.TEXT
   });
-
-  return Conversation;
 }

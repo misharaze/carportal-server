@@ -60,25 +60,25 @@ PasswordReset.belongsTo(User, { foreignKey: "userId" });
 
 // ===== CONVERSATIONS =====
 User.hasMany(Conversation, {
-  foreignKey: "userAId",
-  as: "conversationsAsA",
+  foreignKey: "user1Id",
+  as: "conversationsAsUser1",
   onDelete: "CASCADE"
 });
 
 User.hasMany(Conversation, {
-  foreignKey: "userBId",
-  as: "conversationsAsB",
+  foreignKey: "user2Id",
+  as: "conversationsAsUser2",
   onDelete: "CASCADE"
 });
 
 Conversation.belongsTo(User, {
-  as: "userA",
-  foreignKey: "userAId"
+  as: "user1",
+  foreignKey: "user1Id"
 });
 
 Conversation.belongsTo(User, {
-  as: "userB",
-  foreignKey: "userBId"
+  as: "user2",
+  foreignKey: "user2Id"
 });
 
 // ===== LISTING ↔ CONVERSATION =====

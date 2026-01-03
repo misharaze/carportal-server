@@ -21,7 +21,7 @@ export async function createMessage(req, res) {
       return res.status(404).json({ error: "Диалог не найден" });
     }
 
-    if (![conversation.userAId, conversation.userBId].includes(senderId)) {
+    if (![conversation.user1Id, conversation.user2Id].includes(senderId)) {
       return res.status(403).json({ error: "Нет доступа" });
     }
 
@@ -35,12 +35,12 @@ export async function createMessage(req, res) {
     await conversation.update({ lastMessage: text });
 
     res.json(message);
-
   } catch (err) {
     console.error("createMessage error:", err);
     res.status(500).json({ error: "Ошибка отправки сообщения" });
   }
 }
+
 
 
 /* ============================
@@ -53,19 +53,19 @@ export async function getConversations(req, res) {
     const conversations = await Conversation.findAll({
       where: {
         [Op.or]: [
-          { userAId: userId },
-          { userBId: userId }
+          { user1Id: userId },
+          { user2Id: userId }
         ]
       },
       include: [
         {
           model: User,
-          as: "userA",
+          as: "user1",
           attributes: ["id", "name"]
         },
         {
           model: User,
-          as: "userB",
+          as: "user2",
           attributes: ["id", "name"]
         },
         {
@@ -79,7 +79,7 @@ export async function getConversations(req, res) {
     const result = await Promise.all(
       conversations.map(async convo => {
         const otherUser =
-          convo.userAId === userId ? convo.userB : convo.userA;
+          convo.user1Id === userId ? convo.user2 : convo.user1;
 
         const unreadCount = await Message.count({
           where: {
@@ -100,7 +100,6 @@ export async function getConversations(req, res) {
     );
 
     res.json(result);
-
   } catch (err) {
     console.error("getConversations error:", err);
     res.status(500).json({ error: "Ошибка загрузки диалогов" });
@@ -115,25 +114,21 @@ export async function getMessages(req, res) {
     const userId = req.user.id;
     const { id } = req.params;
 
+    const conversation = await Conversation.findByPk(id);
 
-const conversation = await Conversation.findByPk(id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Диалог не найден" });
+    }
 
-if (!conversation) {
-  return res.status(404).json({ error: "Диалог не найден" });
-}
-
-if (![conversation.userAId, conversation.userBId].includes(userId)) {
-  return res.status(403).json({ error: "Нет доступа" });
-}
-
-
+    if (![conversation.user1Id, conversation.user2Id].includes(userId)) {
+      return res.status(403).json({ error: "Нет доступа" });
+    }
 
     const messages = await Message.findAll({
       where: { conversationId: id },
       order: [["createdAt", "ASC"]]
     });
 
-    // отмечаем как прочитанные
     await Message.update(
       { isRead: true },
       {
@@ -150,12 +145,12 @@ if (![conversation.userAId, conversation.userBId].includes(userId)) {
         isMine: m.senderId === userId
       }))
     );
-
   } catch (err) {
     console.error("getMessages error:", err);
     res.status(500).json({ error: "Ошибка загрузки сообщений" });
   }
 }
+
 
 /* ============================
    ОТМЕТИТЬ ПРОЧИТАННЫМИ
