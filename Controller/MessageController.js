@@ -215,6 +215,22 @@ export async function startConversation(req, res) {
       isRead: false
     });
 
+
+
+const receiverId =
+  conversation.user1Id === senderId
+    ? conversation.user2Id
+    : conversation.user1Id;
+
+
+
+    await Notification.create({
+  userId: receiverId, // получатель
+  type: "message",
+  text: "Вам написали по объявлению",
+  entityId: conversation.id
+});
+
     res.json({ conversationId: conversation.id });
   } catch (err) {
     console.error(err);

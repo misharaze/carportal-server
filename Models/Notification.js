@@ -10,7 +10,8 @@ export default function NotificationModel(sequelize) {
 
     type: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue:"system"
       // "message" | "listing" | "system"
     },
 
