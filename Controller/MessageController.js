@@ -220,4 +220,9 @@ export async function startConversation(req, res) {
     console.error(err);
     res.status(500).json({ error: "Ошибка создания диалога" });
   }
+  if (!Listing.userId) {
+  return res.status(400).json({
+    error: "У объявления нет владельца"
+  });
+}
 }

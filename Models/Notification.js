@@ -1,11 +1,28 @@
+// models/Notification.js
 import { DataTypes } from "sequelize";
 
 export default function NotificationModel(sequelize) {
-  const Notification = sequelize.define("Notification", {
-   
-  text: {
+  return sequelize.define("Notification", {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false
+      // "message" | "listing" | "system"
+    },
+
+    text: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+
+    entityId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+      // conversationId или listingId
     },
 
     isRead: {
@@ -13,6 +30,4 @@ export default function NotificationModel(sequelize) {
       defaultValue: false
     }
   });
-
-  return Notification;
 }
