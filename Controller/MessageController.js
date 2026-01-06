@@ -4,7 +4,7 @@ import { Op } from "sequelize";
 const { Message, Conversation, User, Listing, Notification } = db;
 
 /* ============================
-   СОЗДАТЬ СООБЩЕНИЕ / ОТКЛИК
+   СОЗДАТЬ СООБЩЕНИЕ
 ============================ */
 export async function createMessage(req, res) {
   try {
@@ -25,6 +25,7 @@ export async function createMessage(req, res) {
       return res.status(403).json({ error: "Нет доступа" });
     }
 
+    // создаём сообщение
     const message = await Message.create({
       conversationId,
       senderId,
@@ -32,7 +33,22 @@ export async function createMessage(req, res) {
       isRead: false
     });
 
+    // обновляем последнее сообщение в диалоге
     await conversation.update({ lastMessage: text });
+
+    // 🔔 определяем получателя
+    const receiverId =
+      senderId === conversation.user1Id
+        ? conversation.user2Id
+        : conversation.user1Id;
+
+    // 🔔 создаём уведомление
+    await Notification.create({
+      userId: receiverId,
+      type: "message",
+      text: "Новое сообщение",
+      entityId: conversation.id
+    });
 
     res.json(message);
   } catch (err) {
@@ -40,8 +56,6 @@ export async function createMessage(req, res) {
     res.status(500).json({ error: "Ошибка отправки сообщения" });
   }
 }
-
-
 
 /* ============================
    СПИСОК ДИАЛОГОВ
@@ -52,10 +66,7 @@ export async function getConversations(req, res) {
 
     const conversations = await Conversation.findAll({
       where: {
-        [Op.or]: [
-          { user1Id: userId },
-          { user2Id: userId }
-        ]
+        [Op.or]: [{ user1Id: userId }, { user2Id: userId }]
       },
       include: [
         {
@@ -78,10 +89,8 @@ export async function getConversations(req, res) {
 
     const result = await Promise.all(
       conversations.map(async convo => {
-      const otherUser =
-  convo.user1Id === userId
-    ? convo.user2
-    : convo.user1;
+        const otherUser =
+          convo.user1Id === userId ? convo.user2 : convo.user1;
 
         const unreadCount = await Message.count({
           where: {
@@ -131,6 +140,7 @@ export async function getMessages(req, res) {
       order: [["createdAt", "ASC"]]
     });
 
+    // отмечаем входящие как прочитанные
     await Message.update(
       { isRead: true },
       {
@@ -153,7 +163,6 @@ export async function getMessages(req, res) {
   }
 }
 
-
 /* ============================
    ОТМЕТИТЬ ПРОЧИТАННЫМИ
 ============================ */
@@ -172,19 +181,23 @@ export async function markAsRead(req, res) {
     );
 
     res.json({ success: true });
-
   } catch (err) {
     res.status(500).json({ error: "Ошибка обновления" });
   }
 }
 
+/* ============================
+   НАЧАТЬ ДИАЛОГ
+============================ */
 export async function startConversation(req, res) {
   try {
     const { listingId, text } = req.body;
     const senderId = req.user.id;
 
     const listing = await Listing.findByPk(listingId);
-    if (!listing) return res.status(404).json({ error: "Объявление не найдено" });
+    if (!listing) {
+      return res.status(404).json({ error: "Объявление не найдено" });
+    }
 
     const ownerId = listing.userId;
     if (ownerId === senderId) {
@@ -217,30 +230,17 @@ export async function startConversation(req, res) {
       isRead: false
     });
 
-
-
-const receiverId =
-  conversation.user1Id === senderId
-    ? conversation.user2Id
-    : conversation.user1Id;
-
-
-
+    // 🔔 уведомление владельцу
     await Notification.create({
-  userId: receiverId, // получатель
-  type: "message",
-  text: "Вам написали по объявлению",
-  entityId: conversation.id
-});
+      userId: ownerId,
+      type: "message",
+      text: "Вам написали по объявлению",
+      entityId: conversation.id
+    });
 
     res.json({ conversationId: conversation.id });
   } catch (err) {
-    console.error(err);
+    console.error("startConversation error:", err);
     res.status(500).json({ error: "Ошибка создания диалога" });
   }
-  if (!Listing.userId) {
-  return res.status(400).json({
-    error: "У объявления нет владельца"
-  });
-}
 }
