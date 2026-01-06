@@ -1,7 +1,7 @@
 import db from "../Models/index.js";
 import { Op } from "sequelize";
 
-const { Message, Conversation, User, Listing } = db;
+const { Message, Conversation, User, Listing, Notification } = db;
 
 /* ============================
    СОЗДАТЬ СООБЩЕНИЕ / ОТКЛИК
@@ -78,8 +78,10 @@ export async function getConversations(req, res) {
 
     const result = await Promise.all(
       conversations.map(async convo => {
-        const otherUser =
-          convo.user1Id === userId ? convo.user2 : convo.user1;
+      const otherUser =
+  convo.user1Id === userId
+    ? convo.user2
+    : convo.user1;
 
         const unreadCount = await Message.count({
           where: {
